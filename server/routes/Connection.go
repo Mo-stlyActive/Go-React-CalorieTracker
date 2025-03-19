@@ -11,7 +11,7 @@ import (
 )
 
 func DBinstance() *mongo.Client {
-	// Replace "localhost:27017" with your MongoDB connection string. havent connected to MongoDB yet
+	// Replace "localhost:27017" with your MongoDB connection.
 	MongoDb := "mongodb://localhost:27017"
 	client, err := mongo.NewClient(options.Client().ApplyURI(MongoDb))
 	if err != nil {
