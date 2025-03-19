@@ -40,3 +40,5 @@ const Entry =({entryData, setChangeIngredient, deleteSingleEntry, setChangeEntir
 
 
 }
+
+export default Entry;
