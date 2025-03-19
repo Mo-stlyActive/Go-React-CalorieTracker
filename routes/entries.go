@@ -8,12 +8,14 @@ import (
 
 	"github.com/Mo-stlyActive/Go-React-CalorieTracker/models"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/mgo.v2/bson"
 )
 
 var entryCollection *mongo.Collection = OpenCollection(Client, "calories")
+var validate = validator.New()
 
 func AddEntry(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -26,7 +28,7 @@ func AddEntry(c *gin.Context) {
 	}
 	validationErr := validate.Struct(entry)
 	if validationErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": validationErr.Error()})
 		fmt.Println(validationErr)
 		return
 	}
@@ -63,7 +65,7 @@ func GetEntries(c *gin.Context) {
 }
 
 func GetEntriesByID(c *gin.Context) {
-	EntryID := c.Param.ByName("id")
+	EntryID := c.Params.ByName("id")
 	docID, _ := primitive.ObjectIDFromHex(EntryID)
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	var entry bson.M
@@ -79,7 +81,7 @@ func GetEntriesByID(c *gin.Context) {
 }
 
 func GetEntriesByIngredient(c *gin.Context) {
-	ingredient := c.Param.ByName("id")
+	ingredient := c.Params.ByName("id")
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	var entries []bson.M
 	cursor, err := entryCollection.Find(ctx, bson.M{"ingredients": ingredient})
@@ -101,7 +103,7 @@ func GetEntriesByIngredient(c *gin.Context) {
 
 func UpdateIngredient(c *gin.Context) {
 
-	entryID := c.Param.ByName("id")
+	entryID := c.Params.ByName("id")
 	docID, _ := primitive.ObjectIDFromHex(entryID)
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
@@ -129,7 +131,7 @@ func UpdateIngredient(c *gin.Context) {
 }
 
 func UpdateEntry(c *gin.Context) {
-	entryID := c.Param.ByName("id")
+	entryID := c.Params.ByName("id")
 	docID, _ := primitive.ObjectIDFromHex(entryID)
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	var updatedEntry models.Entry
@@ -140,7 +142,7 @@ func UpdateEntry(c *gin.Context) {
 	}
 	validationErr := validate.Struct(updatedEntry)
 	if validationErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": validationErr.Error()})
 		fmt.Println(validationErr)
 		return
 	}
@@ -165,7 +167,7 @@ func UpdateEntry(c *gin.Context) {
 }
 
 func DeleteEntry(c *gin.Context) {
-	entryID := c.Param.ByName("id")
+	entryID := c.Params.ByName("id")
 	docID, _ := primitive.ObjectIDFromHex(entryID)
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
